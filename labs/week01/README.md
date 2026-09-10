@@ -145,8 +145,14 @@ Create a **new repository in your own GitHub account**.
 Recommended repository name:
 
 ```text
-AI-216-Programming-for-AI-Fall-2026
+AI-216-<StudentID>-Fall-2026
 ```
+
+For example, a student with ID `12345` would use `AI-216-12345-Fall-2026`.
+
+Including your student ID keeps your repository distinct from the official
+course repository and from your classmates' repositories, which makes your
+work easier to identify during evaluation.
 
 Use the visibility instructed by your instructor.
 
@@ -164,7 +170,7 @@ Create a local folder with the same name as your repository.
 Recommended structure:
 
 ```text
-AI-216-Programming-for-AI-Fall-2026/
+AI-216-<StudentID>-Fall-2026/
 ├── labs/
 │   └── week01/
 ├── assignments/
@@ -386,7 +392,7 @@ Copy the repository URL from GitHub.
 Then run:
 
 ```bash
-git remote add origin https://github.com/<username>/AI-216-Programming-for-AI-Fall-2026.git
+git remote add origin https://github.com/<username>/AI-216-<StudentID>-Fall-2026.git
 git branch -M main
 git push -u origin main
 ```

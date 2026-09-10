@@ -348,15 +348,16 @@ Create a repository for your semester work.
 Recommended name:
 
 ```text
-AI-216-Programming-for-AI-Fall-2026
+AI-216-<StudentID>-Fall-2026
 ```
 
+For example, a student with ID `12345` would use `AI-216-12345-Fall-2026`,
 or another naming convention provided by the instructor.
 
 A possible starting structure is:
 
 ```text
-AI-216-Programming-for-AI-Fall-2026/
+AI-216-<StudentID>-Fall-2026/
 ├── week01/
 │   └── hello_ai216.py
 └── README.md
@@ -365,11 +366,11 @@ AI-216-Programming-for-AI-Fall-2026/
 As the semester progresses, the repository may evolve into:
 
 ```text
-AI-216-Programming-for-AI-Fall-2026/
+AI-216-<StudentID>-Fall-2026/
 ├── labs/
 ├── assignments/
 ├── data/
-├── projects/
+├── project/
 └── README.md
 ```
 

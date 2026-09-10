@@ -19,7 +19,7 @@ This course focuses not only on writing Python programs and training models, but
 | [Course Specification (PDF)](syllabus/AI-216_Course_Specification_Fall-2026.pdf) | Official approved syllabus, CLOs, and assessment breakdown |
 | [Weekly Teaching Plan](lectures/README.md) | Topic and lab focus for all 18 weeks |
 | [Week 1 Lecture Handout](lectures/week01/README.md) | Course orientation, AI engineering roadmap, and GitHub |
-| [Lab 01 - GitHub Setup & First Push](labs/Lab01_GitHub_Setup_and_First_Push_Fall_2026.md) | Git configuration, coursework repository, first commits |
+| [Lab 01 - GitHub Setup & First Push](labs/week01/README.md) | Git configuration, coursework repository, first commits |
 
 ---
 
@@ -89,8 +89,8 @@ The repository will be developed throughout the semester.
 - `resources/`  
   Setup guides, documentation links, and professional development resources
 
-- `projects/`  
-  Project guidelines and milestone instructions
+- `project/`  
+  Semester project guidelines and milestone instructions
 
 Folders shown without a link will be added as the semester progresses.
 
@@ -158,3 +158,14 @@ When required, students should briefly disclose how AI tools were used in their 
 **Course Instructor:** Asad Hanif  
 **Department:** Computing  
 **Program:** BS Artificial Intelligence
+
+---
+
+## License
+
+Course materials in this repository are licensed under
+[Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International](LICENSE)
+(CC BY-NC-SA 4.0).
+
+You may share and adapt these materials for non-commercial purposes with
+attribution, provided derivative works are shared under the same license.
