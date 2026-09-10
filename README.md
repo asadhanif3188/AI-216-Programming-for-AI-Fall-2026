@@ -1,4 +1,4 @@
-# AI-216: Programming for Artificial Intelligence - Spring 2026
+# AI-216: Programming for Artificial Intelligence - Fall 2026
 
 Welcome to the official course repository for **AI-216 – Programming for Artificial Intelligence**
 (BS Artificial Intelligence).
