@@ -12,6 +12,17 @@ This course focuses not only on writing Python programs and training models, but
 
 ---
 
+## Course Materials
+
+| Resource | Description |
+| --- | --- |
+| [Course Specification (PDF)](syllabus/AI-216_Course_Specification_Fall-2026.pdf) | Official approved syllabus, CLOs, and assessment breakdown |
+| [Weekly Teaching Plan](lectures/README.md) | Topic and lab focus for all 18 weeks |
+| [Week 1 Lecture Handout](lectures/week01/README.md) | Course orientation, AI engineering roadmap, and GitHub |
+| [Lab 01 - GitHub Setup & First Push](labs/Lab01_GitHub_Setup_and_First_Push_Fall_2026.md) | Git configuration, coursework repository, first commits |
+
+---
+
 ## Course Goals
 
 By the end of this course, students should be able to:
@@ -60,10 +71,13 @@ The goal is to move from **"I can train a model"** to:
 
 The repository will be developed throughout the semester.
 
-- `syllabus/`  
+- [`syllabus/`](syllabus/)  
   Official course specification and semester outline
 
-- `labs/`  
+- [`lectures/`](lectures/)  
+  Weekly teaching plan and lecture handouts
+
+- [`labs/`](labs/)  
   Weekly lab instructions, exercises, and starter code
 
 - `assignments/`  
@@ -77,6 +91,8 @@ The repository will be developed throughout the semester.
 
 - `projects/`  
   Project guidelines and milestone instructions
+
+Folders shown without a link will be added as the semester progresses.
 
 ---
 
