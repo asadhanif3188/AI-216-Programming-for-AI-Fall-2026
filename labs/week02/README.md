@@ -56,6 +56,22 @@ labs/week02/
 └── README.md
 ```
 
+Also add the files for Task 7 and the optional challenge:
+
+```text
+labs/week02/
+├── task07_decomposition.py        # Task 7 — whichever option you choose
+└── optional_menu.py               # Optional Challenge (if attempted)
+```
+
+Run each file from the repository root, for example:
+
+```bash
+python labs/week02/task01_expense_tracker.py
+```
+
+> **Note:** This `README.md` is the instructor's lab handout. The `labs/week02/README.md` you create (Section 15) lives in **your own** coursework repository.
+
 ---
 
 ## 3. General Coding Requirements
@@ -75,6 +91,11 @@ Where appropriate, test:
 - A normal case
 - A boundary case
 - An unusual case
+
+Output formatting:
+
+- Display floats and percentages with **2 decimal places**, e.g. `f"{average:.2f}"` or `f"{percentage:.2f}%"`.
+- Label every printed value so the output can be understood without reading the code.
 
 ---
 
@@ -107,6 +128,37 @@ At the top of your file, add:
 # Output:
 ```
 
+**Clarifications:**
+
+- Store the values directly in variables (no `input()` needed for this task).
+- Use **whole-number** amounts (e.g., PKR `450`), not decimals. Floats such as `0.1 + 0.2` are not exactly `0.3`, which can break the "exactly at budget" check.
+- To test the three outcomes, change the values and re-run the program. Record each case in your `README.md`.
+
+Example values:
+
+```python
+food_expense = 450
+transport_expense = 200
+other_expense = 150
+daily_budget = 1000
+```
+
+Expected output for these values (your wording may differ):
+
+```text
+Total expense: 800
+Remaining budget: 200
+Status: Within budget
+```
+
+Test at least:
+
+| Food | Transport | Other | Budget | Expected status |
+| --- | --- | --- | --- | --- |
+| 450 | 200 | 150 | 1000 | Within budget (remaining 200) |
+| 500 | 300 | 200 | 1000 | Exactly at budget (remaining 0) |
+| 600 | 300 | 250 | 1000 | Over budget (remaining -150) |
+
 **Concepts:** variables, numeric types, arithmetic, comparisons, `if / elif / else`
 
 ---
@@ -120,6 +172,15 @@ Use these rules:
 Above 5–15   → Standard
 Above 15     → Premium
 ```
+
+Precise rules (use these for your conditions):
+
+| Package | Rule |
+| --- | --- |
+| Invalid | `usage < 0` |
+| Basic | `0 <= usage <= 5` |
+| Standard | `5 < usage <= 15` |
+| Premium | `usage > 15` |
 
 Your program should:
 
@@ -140,6 +201,21 @@ Test at least:
 ```
 
 Record the results in `README.md`.
+
+Expected results:
+
+| Input (GB) | Expected output |
+| --- | --- |
+| `0` | Basic |
+| `5` | Basic |
+| `5.1` | Standard |
+| `15` | Standard |
+| `15.1` | Premium |
+| `-1` | Invalid — usage cannot be negative |
+
+Use `float()` (not `int()`) for the conversion, because `5.1` is a valid input.
+
+> **Out of scope this week:** non-numeric input such as `abc` will crash `float()` with a `ValueError`. You do not need to handle that yet — exception handling is covered in Week 3.
 
 **Concepts:** `input()`, type conversion, conditionals, boundary testing
 
@@ -168,6 +244,24 @@ Your program should:
 3. Count each category.
 4. Print a final summary.
 
+Precise rules:
+
+| Category | Rule |
+| --- | --- |
+| Below Normal | `temperature < 15` |
+| Normal | `15 <= temperature <= 30` |
+| High | `temperature > 30` |
+
+Expected summary (check your output against this):
+
+```text
+Below Normal: 1
+Normal: 4
+High: 2
+```
+
+After it works, add `15.0` and `30.0` to the list and confirm both are counted as **Normal**.
+
 **Concepts:** lists, `for` loops, counters, conditions
 
 ---
@@ -194,6 +288,17 @@ Do not use NumPy or Pandas.
 Add a comment answering:
 
 > Why might this logic later be placed inside a reusable function?
+
+Print the average and percentage with 2 decimal places. Expected summary:
+
+```text
+Meeting target (>= 0.85): 3
+Below target: 4
+Average score: 0.81
+Percentage meeting target: 42.86%
+```
+
+Think about it: what would happen if `scores` were an empty list? Add a check so the program prints a clear message instead of crashing with `ZeroDivisionError`.
 
 **Concepts:** loops, counters, accumulators, arithmetic, conditions
 
@@ -224,6 +329,27 @@ prerequisite_completed = True
 
 Test at least three applicants.
 
+**How to test:** change the three values and re-run the program for each applicant, then record the results in your `README.md`. (In Task 6 you will see how functions make repeated checks like this easier.)
+
+Use at least these applicants:
+
+| Applicant | Age | Programming score | Prerequisite completed | Expected result |
+| --- | --- | --- | --- | --- |
+| 1 | 19 | 72 | `True` | Eligible |
+| 2 | 18 | 60 | `True` | Eligible (both values exactly at the boundary) |
+| 3 | 17 | 55 | `False` | Not eligible — age, programming score, **and** prerequisite not met |
+
+**Hint:** an `if / elif` chain stops at the **first** true condition, so it can report only one failed requirement. To list **every** requirement that was not met, use separate `if` statements:
+
+```python
+if age < 18:
+    print("- Age requirement not met")
+if programming_score < 60:
+    print("- Programming score requirement not met")
+if not prerequisite_completed:
+    print("- Prerequisite course not completed")
+```
+
 **Concepts:** booleans, `and`, multiple conditions
 
 ---
@@ -251,6 +377,21 @@ Requirements:
 - Do not print inside these functions.
 - Call each function with sample values and print the returned result.
 
+Clarifications:
+
+- `is_passing` should return `True` when `score >= passing_score` (a score exactly at the passing mark passes).
+- `count_values_above_threshold` should count values that **meet or exceed** the threshold (`>=`), matching Task 4.
+- Optional: make `calculate_percentage` return `0` when `total` is `0`, instead of crashing.
+
+Example calls and expected results:
+
+```python
+print(calculate_percentage(423, 500))        # 84.6
+print(is_passing(50, 50))                    # True
+print(is_passing(49, 50))                    # False
+print(count_values_above_threshold([0.72, 0.81, 0.88, 0.91, 0.67, 0.86, 0.79], 0.85))  # 3
+```
+
 **Concepts:** `def`, parameters, return values, reusable logic
 
 ---
@@ -269,6 +410,22 @@ High   → above 10 kWh
 
 Produce counts and percentages.
 
+Use:
+
+```python
+daily_usage_kwh = [3.2, 5.0, 7.5, 10.0, 12.4, 4.9, 10.1]
+```
+
+Precise rules: Low `< 5`, Normal `5 <= usage <= 10`, High `> 10`.
+
+Expected summary:
+
+```text
+Low: 2 (28.57%)
+Normal: 3 (42.86%)
+High: 2 (28.57%)
+```
+
 ### Option B — Attendance Analysis
 
 Given attendance percentages:
@@ -276,6 +433,20 @@ Given attendance percentages:
 - Count students with attendance `>= 75%`.
 - Count students below the requirement.
 - Calculate the eligible percentage.
+
+Use:
+
+```python
+attendance = [82, 74.9, 75, 91, 60, 88, 70]
+```
+
+Expected summary:
+
+```text
+Eligible (>= 75%): 4
+Below requirement: 3
+Eligible percentage: 57.14%
+```
 
 ### Option C — AI Service Request Monitor
 
@@ -294,6 +465,18 @@ Slow       → > 700 ms
 ```
 
 Produce a summary.
+
+Precise rules: Fast `<= 300`, Acceptable `300 < time <= 700`, Slow `> 700`.
+
+Expected summary:
+
+```text
+Fast: 3
+Acceptable: 2
+Slow: 2
+```
+
+Whichever option you choose, put your solution in `task07_decomposition.py`.
 
 Before coding, add:
 
@@ -319,6 +502,26 @@ Create:
 
 Continue until the user chooses `3`.
 
+Hints:
+
+- Reuse `is_passing` and `calculate_percentage` from Task 6 (copy them into `optional_menu.py`; importing between files is covered in Week 3).
+- Keep the menu choice as a string and compare with `"1"`, `"2"`, `"3"` — this avoids converting invalid menu input.
+- Print a clear message for any other choice, then show the menu again.
+
+Loop skeleton:
+
+```python
+choice = ""
+
+while choice != "3":
+    print("1. Check pass/fail")
+    print("2. Calculate percentage")
+    print("3. Exit")
+    choice = input("Choose an option: ")
+
+    # handle "1", "2", "3", and invalid choices here
+```
+
 **Concepts:** `while`, input, conditions, function calls
 
 ---
@@ -342,6 +545,20 @@ For example:
 ```
 
 Formal exception handling comes in Week 3, so focus here on logical validation.
+
+Also check:
+
+- **Unusual values** — negative numbers, zero, and empty lists.
+- **Float comparisons** — avoid `==` with decimals (`0.1 + 0.2 == 0.3` is `False`); use whole numbers where exact equality matters.
+- **Expected results** — compare your output with the expected summaries given in the tasks. If they differ, trace your loop one iteration at a time (or use [Python Tutor](https://pythontutor.com/)).
+
+A simple way to record test cases in your `README.md`:
+
+| Task | Input | Expected | Actual | Pass? |
+| --- | --- | --- | --- | --- |
+| 2 | `5` | Basic | Basic | ✅ |
+| 2 | `5.1` | Standard | Standard | ✅ |
+| 2 | `-1` | Invalid | Invalid | ✅ |
 
 ---
 
@@ -384,6 +601,13 @@ git commit -m "Lab02: complete Python fundamentals exercises"
 
 git push
 ```
+
+Commit message guidance:
+
+- Start with the lab and task: `Lab02: ...` (as above), so your history is easy to scan by week.
+- Use a short, present-tense description of **what changed**: `Lab02: add boundary checks to package advisor`.
+- Avoid vague messages such as `update`, `final`, or `changes`.
+- Commit after each task works — at least one commit per task is a good habit.
 
 ---
 
@@ -540,6 +764,29 @@ Explain why it happened
 - [ ] Multiple meaningful Git commits are visible.
 - [ ] All work is pushed to GitHub.
 - [ ] You can explain every submitted solution.
+- [ ] Task 7 and the optional challenge (if attempted) are in `task07_decomposition.py` / `optional_menu.py`.
+- [ ] Outputs for fixed-data tasks match the expected summaries.
+- [ ] Floats and percentages are displayed with 2 decimal places.
+
+### Submission
+
+- Push your work to your own coursework repository (`AI-216-<StudentID>-Fall-2026`) under `labs/week02/`.
+- Deadline: as announced on LMS.
+- Work pushed after the deadline may not be evaluated.
+
+<!-- ### Suggested Marking Guide
+
+| Component | Weight |
+| --- | --- |
+| Tasks 1–5: correct logic and boundary handling | 40% |
+| Task 6: functions return values correctly (no printing inside) | 15% |
+| Task 7: decomposition comments + correct summary | 15% |
+| Testing evidence recorded in `README.md` | 10% |
+| Code quality: naming, formatting, readable output | 10% |
+| Git history (multiple meaningful commits) and README reflection | 10% |
+| Optional challenge | Bonus |
+
+During evaluation, you may be asked to explain or modify any part of your code. -->
 
 ---
 

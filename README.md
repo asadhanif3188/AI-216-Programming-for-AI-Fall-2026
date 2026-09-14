@@ -20,6 +20,8 @@ This course focuses not only on writing Python programs and training models, but
 | [Weekly Teaching Plan](lectures/README.md) | Topic and lab focus for all 18 weeks |
 | [Week 1 Lecture Handout](lectures/week01/README.md) | Course orientation, AI engineering roadmap, and GitHub |
 | [Lab 01 - GitHub Setup & First Push](labs/week01/README.md) | Git configuration, coursework repository, first commits |
+| [Week 2 Lecture Handout](lectures/week02/README.md) | Python fundamentals for AI problem solving |
+| [Lab 02 - Python Fundamentals for Problem Solving](labs/week02/README.md) | Variables, operators, conditionals, loops, functions, boundary testing |
 
 ---
 

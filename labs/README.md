@@ -13,7 +13,7 @@ corresponding lecture topics.
 | Week | Lab | Focus |
 | --- | --- | --- |
 | 1 | [Lab 01 - GitHub Setup & First Push](week01/README.md) | Git configuration, coursework repository, meaningful commits, README |
-| 2 | Coming soon | Problem-solving exercises using Python |
+| 2 | [Lab 02 - Python Fundamentals for Problem Solving](week02/README.md) | Problem-solving exercises using Python |
 | 3 | Coming soon | Refactor procedural code into functions, classes, and modules |
 | 4 | Coming soon | Data-oriented programming exercises |
 | 5 | Coming soon | Replace Python-loop computations with NumPy |
