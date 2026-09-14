@@ -49,7 +49,7 @@ By the end of this lecture, you should be able to:
 6. Break a small problem into **input → processing → output**.
 7. Trace and explain the behavior of a short Python program.
 
-### Lecture Agenda — Typical 2-Hour Flow
+<!-- ### Lecture Agenda — Typical 2-Hour Flow
 
 | Time | Activity |
 | --- | --- |
@@ -59,7 +59,7 @@ By the end of this lecture, you should be able to:
 | 0:55 – 1:05 | Short break / quick tracing exercise |
 | 1:05 – 1:30 | `for` loops, `range()`, counters, accumulators, `while`, `break` / `continue` |
 | 1:30 – 1:50 | Functions, `print()` vs `return`, integrated example |
-| 1:50 – 2:00 | Common mistakes, self-check, exit ticket |
+| 1:50 – 2:00 | Common mistakes, self-check, exit ticket | -->
 
 ---
 
