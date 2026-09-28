@@ -14,8 +14,8 @@ corresponding lecture topics.
 | --- | --- | --- |
 | 1 | [Lab 01 - GitHub Setup & First Push](week01/README.md) | Git configuration, coursework repository, meaningful commits, README |
 | 2 | [Lab 02 - Python Fundamentals for Problem Solving](week02/README.md) | Problem-solving exercises using Python |
-| 3 | Coming soon | Refactor procedural code into functions, classes, and modules |
-| 4 | Coming soon | Data-oriented programming exercises |
+| 3 | [Lab 03 - Functions, Modules, Exceptions, Debugging & OOP](week03/README.md) | Refactor procedural code into functions, classes, and modules |
+| 4 | [Lab 04 - Python Data Structures & Clean Code](week04/README.md) | Data-oriented programming: lists, tuples, dictionaries, sets, comprehensions, clean refactoring |
 | 5 | Coming soon | Replace Python-loop computations with NumPy |
 | 6 | Coming soon | Load, filter, transform, and summarize a real dataset |
 | 7 | Coming soon | Build a small ingest -> clean -> store pipeline |

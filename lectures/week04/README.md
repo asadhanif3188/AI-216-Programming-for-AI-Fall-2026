@@ -68,14 +68,17 @@ By the end of this lecture, you should be able to:
 
 1. Use lists to store and process ordered collections of values.
 2. Explain the difference between mutable and immutable data structures.
-3. Use tuples when data should remain fixed.
-4. Use dictionaries to represent key-value relationships and structured records.
-5. Use sets to represent unique values and perform membership/set operations.
-6. Write readable list, dictionary, and set comprehensions.
-7. Iterate effectively using `enumerate()`, `zip()`, and dictionary methods.
-8. Choose an appropriate data structure for a given problem.
-9. Organize Python files and data-related code clearly.
-10. Apply practical clean-code principles to data-oriented Python programs.
+3. Distinguish aliasing, shallow copies, and deep copies.
+4. Use tuples when data should remain fixed.
+5. Use dictionaries to represent key-value relationships and structured records.
+6. Use sets to represent unique values and perform membership/set operations.
+7. Explain why sets and dictionaries give fast membership checks, and what "hashable" means.
+8. Write readable list, dictionary, and set comprehensions.
+9. Iterate effectively using `enumerate()`, `zip()`, and dictionary methods.
+10. Sort and count structured records using `key=`, `dict.get()`, and `collections.Counter`.
+11. Choose an appropriate data structure for a given problem.
+12. Organize Python files and data-related code clearly.
+13. Apply practical clean-code principles to data-oriented Python programs.
 
 ---
 
@@ -330,6 +333,57 @@ If you want a new sorted list:
 sorted_accuracies = sorted(accuracies)
 ```
 
+## 6.4 `append()` vs `extend()`
+
+`append()` adds **one item** — even if that item is itself a list.
+
+`extend()` adds **each item** from another collection.
+
+```python
+values = [10, 20]
+values.append([30, 40])
+print(values)
+
+values = [10, 20]
+values.extend([30, 40])
+print(values)
+```
+
+Output:
+
+```text
+[10, 20, [30, 40]]
+[10, 20, 30, 40]
+```
+
+Use `extend()` when you want to merge a batch of new values into an existing list.
+
+## 6.5 `insert()`, `pop()`, and `index()`
+
+```python
+models = ["baseline", "knn"]
+
+models.insert(1, "tree")
+print(models)
+
+last_model = models.pop()
+print(last_model, models)
+
+print(models.index("tree"))
+```
+
+Output:
+
+```text
+['baseline', 'tree', 'knn']
+knn ['baseline', 'tree']
+1
+```
+
+- `insert(position, item)` adds an item at a specific position.
+- `pop()` removes **and returns** the last item (or the item at a given position).
+- `index(item)` returns the position of the first matching item, and raises `ValueError` if the item is missing.
+
 ---
 
 # 7. Mutability, Aliasing & Copying Lists
@@ -352,15 +406,17 @@ print(scores)
 
 ```python
 original = [10, 20, 30]
-copy = original
+alias = original
 
-copy.append(40)
+alias.append(40)
 
 print("Original:", original)
-print("Copy:", copy)
+print("Alias:", alias)
 ```
 
 Both variables refer to the same list.
+
+> Avoid naming a variable `copy` — that name belongs to Python's `copy` module, which you will use in Section 7.4.
 
 ## 7.3 Advanced Example — Independent Copy
 
@@ -374,11 +430,79 @@ print("Raw:", raw_scores)
 print("Processed:", processed_scores)
 ```
 
+These three forms all create a new, independent list:
+
+```python
+processed_scores = raw_scores.copy()
+processed_scores = list(raw_scores)
+processed_scores = raw_scores[:]
+```
+
 Accidental mutation can cause subtle bugs in data-processing pipelines.
 
 Ask:
 
 > **Am I modifying the original data, or should I create a new version?**
+
+## 7.4 Shallow Copy vs Deep Copy
+
+`.copy()` creates a **shallow copy**: a new outer list, but the items inside are still shared.
+
+For a list of numbers this does not matter, because numbers cannot be changed in place.
+
+For a **list of dictionaries** — the most common pattern this week — it matters a lot:
+
+```python
+raw_predictions = [
+    {"id": 1, "label": "Spam"},
+    {"id": 2, "label": "HAM"}
+]
+
+cleaned = raw_predictions.copy()
+cleaned[0]["label"] = "spam"
+
+print(raw_predictions)
+```
+
+Output:
+
+```text
+[{'id': 1, 'label': 'spam'}, {'id': 2, 'label': 'HAM'}]
+```
+
+The raw data changed, because both lists contain **the same dictionary objects**.
+
+A **deep copy** duplicates the nested objects too:
+
+```python
+import copy
+
+raw_predictions = [
+    {"id": 1, "label": "Spam"},
+    {"id": 2, "label": "HAM"}
+]
+
+cleaned = copy.deepcopy(raw_predictions)
+cleaned[0]["label"] = "spam"
+
+print(raw_predictions)
+print(cleaned)
+```
+
+Output:
+
+```text
+[{'id': 1, 'label': 'Spam'}, {'id': 2, 'label': 'HAM'}]
+[{'id': 1, 'label': 'spam'}, {'id': 2, 'label': 'HAM'}]
+```
+
+```text
+alias          → same list, same items
+shallow copy   → new list, same items
+deep copy      → new list, new items
+```
+
+In practice, you often do not need `deepcopy()`. A clean alternative is to **build new records** instead of editing old ones (see Section 27.4).
 
 ---
 
@@ -416,6 +540,8 @@ print("Accuracy:", accuracy)
 
 ## 8.3 Advanced Example — Returning Multiple Values
 
+You saw this function in Week 3. What was new then was returning several values; what is new now is noticing that those values travel together as **a tuple**.
+
 ```python
 def summarize(values):
     minimum = min(values)
@@ -432,6 +558,17 @@ minimum, maximum, average = summarize(scores)
 print("Minimum:", minimum)
 print("Maximum:", maximum)
 print("Average:", average)
+```
+
+`return minimum, maximum, average` builds a tuple, and the assignment unpacks it:
+
+```python
+result = summarize(scores)
+print(type(result))
+```
+
+```text
+<class 'tuple'>
 ```
 
 ---
@@ -545,6 +682,26 @@ print("Features:", model_metadata["features"])
 ```
 
 Dictionaries are commonly used for configuration, structured records, API payloads, JSON-like data, model metadata, and metrics.
+
+## 10.4 Dictionaries Remember Insertion Order
+
+Since Python 3.7, a dictionary keeps keys in the order they were **inserted**:
+
+```python
+config = {
+    "threshold": 0.80,
+    "debug": False,
+    "model": "spam_classifier"
+}
+
+print(list(config))
+```
+
+```text
+['threshold', 'debug', 'model']
+```
+
+This makes printed reports predictable. Sets, by contrast, do **not** preserve order (Section 13).
 
 ---
 
@@ -685,6 +842,52 @@ for result in high_confidence:
 
 This representation is similar to data exchanged through APIs.
 
+## 12.4 Sorting Records with `key=`
+
+`sorted()` cannot guess how to compare two dictionaries.
+
+Use `key=` to tell it **which value to sort by**. The key is a function that receives one record and returns the value to compare:
+
+```python
+predictions = [
+    {"id": 201, "label": "ham", "confidence": 0.72},
+    {"id": 202, "label": "spam", "confidence": 0.94},
+    {"id": 203, "label": "unknown", "confidence": 0.41},
+    {"id": 204, "label": "spam", "confidence": 0.89}
+]
+
+
+def get_confidence(prediction):
+    return prediction["confidence"]
+
+
+ranked = sorted(
+    predictions,
+    key=get_confidence,
+    reverse=True
+)
+
+for result in ranked:
+    print(result["id"], result["confidence"])
+```
+
+Output:
+
+```text
+202 0.94
+204 0.89
+201 0.72
+203 0.41
+```
+
+Note that we pass `get_confidence` — the function itself — **not** `get_confidence()`.
+
+Taking the top results is then just a slice:
+
+```python
+top_two = ranked[:2]
+```
+
 ---
 
 # 13. Sets
@@ -742,6 +945,46 @@ for record in records:
 print("Unique categories:", categories)
 ```
 
+Because sets are unordered, the printed order may differ from run to run. When you need predictable output (for reports or grading), print `sorted(categories)`.
+
+## 13.4 What Can Go Inside a Set or Be a Dictionary Key?
+
+Set elements and dictionary keys must be **hashable**.
+
+In practice, for this course:
+
+```text
+hashable      → int, float, str, bool, tuple (of hashable values)
+not hashable  → list, dict, set
+```
+
+Python uses a value's **hash** — a number computed from the value — to find it quickly. If a value could change after being stored, its hash would change too, and Python could no longer find it. That is why mutable types are not allowed.
+
+This is another reason tuples matter. A tuple can be a dictionary key; a list cannot:
+
+```python
+input_models = {
+    (224, 224): "resnet50",
+    (299, 299): "inception_v3"
+}
+
+print(input_models[(224, 224)])
+```
+
+```text
+resnet50
+```
+
+```python
+input_models = {
+    [224, 224]: "resnet50"
+}
+```
+
+```text
+TypeError: unhashable type: 'list'
+```
+
 ---
 
 # 14. Set Operations
@@ -791,6 +1034,53 @@ if unexpected:
 ```
 
 Set operations can express validation logic very clearly.
+
+## 14.4 Why Membership Checks Are Fast in Sets and Dictionaries
+
+To answer `value in some_list`, Python checks items **one by one** until it finds a match. With a million items, that can mean a million comparisons.
+
+A set (or dictionary) uses the value's hash to jump **directly** to where the value would be stored. The time barely changes as the collection grows.
+
+```text
+value in list  → checks items one by one   → slower as data grows   (O(n))
+value in set   → jumps to the location      → roughly constant time  (O(1))
+value in dict  → same as set, checks keys   → roughly constant time  (O(1))
+```
+
+You can measure this with the standard `timeit` module:
+
+```python
+import timeit
+
+ids_list = list(range(1_000_000))
+ids_set = set(ids_list)
+
+list_time = timeit.timeit(
+    "999_999 in ids_list",
+    globals=globals(),
+    number=100
+)
+
+set_time = timeit.timeit(
+    "999_999 in ids_set",
+    globals=globals(),
+    number=100
+)
+
+print(f"List lookup: {list_time:.4f} seconds")
+print(f"Set lookup:  {set_time:.6f} seconds")
+```
+
+Typical output (exact numbers vary by machine):
+
+```text
+List lookup: 0.7587 seconds
+Set lookup:  0.000009 seconds
+```
+
+For a handful of labels the difference is invisible. For validating millions of records against a list of allowed IDs, it is the difference between seconds and hours.
+
+> **If the main question is "is this value in the collection?", use a set.**
 
 ---
 
@@ -1087,6 +1377,8 @@ A useful comparison:
 | Fixed ordered group | `tuple` | Immutable and ordered |
 | Named fields / key-value mapping | `dict` | Values accessed by meaningful keys |
 | Unique values | `set` | Automatically removes duplicates |
+| Fast "is it in there?" checks | `set` (or `dict` keys) | Hash-based lookup stays fast as data grows |
+| Composite lookup key, e.g. `(width, height)` | `tuple` as a `dict` key | Tuples are hashable; lists are not |
 | Many structured records | list of dictionaries | One dictionary per record |
 
 ## 23.1 Basic Scenario — Ordered Scores
@@ -1310,6 +1602,41 @@ Week 3 introduced this principle.
 
 Week 4 applies it to data-oriented code.
 
+## 27.4 Do Not Mutate Your Inputs
+
+A function that quietly changes the data passed into it is hard to trust.
+
+Surprising:
+
+```python
+def normalize_labels(records):
+    for record in records:
+        record["label"] = record["label"].lower()
+    return records
+```
+
+After calling it, the caller's **raw** data has also changed — the aliasing problem from Section 7, hidden inside a function.
+
+Predictable:
+
+```python
+def normalize_labels(records):
+    normalized = []
+
+    for record in records:
+        cleaned = record.copy()
+        cleaned["label"] = cleaned["label"].lower()
+        normalized.append(cleaned)
+
+    return normalized
+```
+
+`record.copy()` creates a new dictionary for each record, so the original records stay untouched. (This is safe here because the values inside each record are strings and numbers, not nested lists or dictionaries.)
+
+A useful rule:
+
+> **Functions should return new data rather than silently modifying the data they receive — unless modifying it is the function's stated purpose.**
+
 ---
 
 # 28. File Organization
@@ -1372,6 +1699,26 @@ analysis.py
  ↓
 main.py / application
 ```
+
+### Importing from `src/`
+
+When modules live inside a folder, `main.py` imports them through the folder name:
+
+```python
+from src.preprocessing import clean_records
+from src.analysis import calculate_summary
+```
+
+Run the program from the **project folder** (the one containing `main.py`):
+
+```bash
+cd project
+python main.py
+```
+
+If you run it from somewhere else, Python may not find `src` and will raise `ModuleNotFoundError`.
+
+In the simpler layout from Section 28.2, all files sit next to `main.py`, so a plain `from preprocessing import clean_records` works — again, as long as you run `python main.py` from that folder.
 
 You do not need this structure for every small exercise.
 
@@ -1456,18 +1803,66 @@ for prediction in raw_predictions:
 print(label_counts)
 ```
 
+The same counting logic is shorter with `dict.get()` and a default of `0`:
+
+```python
+label_counts = {}
+
+for prediction in raw_predictions:
+    label = prediction["label"]
+    label_counts[label] = label_counts.get(label, 0) + 1
+```
+
+Counting is so common that the standard library provides a ready-made tool, `collections.Counter`:
+
+```python
+from collections import Counter
+
+labels = [prediction["label"] for prediction in raw_predictions]
+label_counts = Counter(labels)
+
+print(label_counts)
+print(label_counts.most_common(1))
+```
+
+```text
+Counter({'spam': 2, 'ham': 1, 'unknown': 1})
+[('spam', 2)]
+```
+
+A related tool, `collections.defaultdict`, is useful for **grouping** — for example, collecting all confidence values per label:
+
+```python
+from collections import defaultdict
+
+confidences_by_label = defaultdict(list)
+
+for prediction in raw_predictions:
+    confidences_by_label[prediction["label"]].append(prediction["confidence"])
+
+print(dict(confidences_by_label))
+```
+
+```text
+{'spam': [0.94, 0.89], 'ham': [0.72], 'unknown': [0.41]}
+```
+
+Learn the plain-dictionary version first so you understand what these tools do. You will see the same idea again in Week 6 as Pandas' `value_counts()` and `groupby()`.
+
 ## 29.4 Step 4 — Build a Summary
 
 ```python
 summary = {
     "total_predictions": len(raw_predictions),
-    "unique_labels": unique_labels,
+    "unique_labels": sorted(unique_labels),
     "high_confidence_count": len(high_confidence),
     "label_counts": label_counts
 }
 
 print(summary)
 ```
+
+`sorted(unique_labels)` turns the set into an alphabetical list, so the report prints in the same order every time.
 
 Different structures solve different parts of the problem:
 
@@ -1507,6 +1902,8 @@ student = {
 ### Expecting a Set to Preserve Meaningful Order
 
 Do not use a set when sequence order matters.
+
+Dictionaries keep insertion order; sets do not. If you need a set's contents in a stable order, use `sorted(the_set)`.
 
 ### Modifying a List While Iterating Over It
 
@@ -1551,10 +1948,59 @@ Do not compress complex business logic into one unreadable expression.
 ### Confusing Copy with Alias
 
 ```python
-copy = original
+alias = original
 ```
 
 does not create an independent list.
+
+And `.copy()` on a list of dictionaries still shares the dictionaries inside it (Section 7.4).
+
+### Using a Mutable Default Argument
+
+Risky:
+
+```python
+def add_label(label, labels=[]):
+    labels.append(label)
+    return labels
+
+
+print(add_label("spam"))
+print(add_label("ham"))
+```
+
+```text
+['spam']
+['spam', 'ham']
+```
+
+The default list is created **once**, when the function is defined, and then shared by every call. The second call "remembers" the first.
+
+Safer:
+
+```python
+def add_label(label, labels=None):
+    if labels is None:
+        labels = []
+
+    labels.append(label)
+    return labels
+```
+
+```text
+['spam']
+['ham']
+```
+
+Use `None` as the default for lists, dictionaries, and sets, and create the new collection inside the function.
+
+### Using a List as a Dictionary Key or Set Element
+
+```python
+{[224, 224]: "resnet50"}
+```
+
+raises `TypeError: unhashable type: 'list'`. Use a tuple instead (Section 13.4).
 
 ### Choosing a Class When a Dictionary Is Enough
 
@@ -1594,7 +2040,7 @@ When choosing a data structure, ask:
 ### Sets
 
 - Do I care about unique values?
-- Am I checking membership?
+- Am I checking membership — especially against a large collection?
 - Am I comparing groups?
 
 ### Comprehensions
@@ -1608,6 +2054,7 @@ When choosing a data structure, ask:
 - Are names meaningful?
 - Are rules expressed through named constants?
 - Is data-processing logic split into understandable steps?
+- Do my functions return new data instead of silently changing their inputs?
 
 The engineering question is not:
 
@@ -1647,23 +2094,29 @@ Before moving to the lab, make sure you can answer:
 1. What makes a list mutable?
 2. What is the difference between indexing and slicing?
 3. What is the difference between `append()` and `extend()`?
-4. Why can `copy = original` create unexpected behavior?
-5. When is a tuple more appropriate than a list?
-6. What is tuple unpacking?
-7. What problem does a dictionary solve better than a list?
-8. What is the difference between `record["key"]` and `record.get("key")`?
-9. Why are sets useful for unique labels?
-10. What do union, intersection, and difference mean?
-11. What is a list comprehension?
-12. When should you avoid a comprehension?
-13. What does `enumerate()` provide?
-14. What does `zip()` do?
-15. Which data structure would you use for model configuration, and why?
-16. Why are meaningful variable names part of clean code?
-17. What is a magic value?
-18. Why should file organization reflect responsibilities?
-19. Why might a list of dictionaries be useful for dataset-like records?
-20. How does choosing the right data structure improve maintainability?
+4. Why can `alias = original` create unexpected behavior?
+5. Why does `.copy()` on a list of dictionaries not fully protect the original data?
+6. When is a tuple more appropriate than a list?
+7. What is tuple unpacking?
+8. What problem does a dictionary solve better than a list?
+9. What is the difference between `record["key"]` and `record.get("key")`?
+10. Why are sets useful for unique labels?
+11. What do union, intersection, and difference mean?
+12. Why is `value in some_set` faster than `value in some_list` for large collections?
+13. Why can a tuple be a dictionary key, but a list cannot?
+14. What is a list comprehension?
+15. When should you avoid a comprehension?
+16. What does `enumerate()` provide?
+17. What does `zip()` do?
+18. How do you sort a list of dictionaries by one of their fields?
+19. Which data structure would you use for model configuration, and why?
+20. Why are meaningful variable names part of clean code?
+21. What is a magic value?
+22. Why is `def f(items=[])` risky?
+23. Why should a function avoid modifying the data passed into it?
+24. Why should file organization reflect responsibilities?
+25. Why might a list of dictionaries be useful for dataset-like records?
+26. How does choosing the right data structure improve maintainability?
 
 ---
 

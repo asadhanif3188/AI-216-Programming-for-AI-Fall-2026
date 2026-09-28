@@ -19,13 +19,16 @@ By the end of the lab, you should be able to:
 - Use sets for unique values, membership checks, and set operations.
 - Write readable list, dictionary, and set comprehensions.
 - Use `enumerate()` and `zip()` effectively.
-- Recognize the difference between aliasing and copying.
+- Recognize the difference between aliasing, shallow copying, and deep copying.
+- Use tuples as dictionary keys and explain why lists cannot be keys.
+- Sort and count structured records.
 - Choose a data structure based on what the data means.
-- Refactor unclear code into cleaner, more maintainable code.
+- Refactor unclear code into cleaner, more maintainable code without changing its behavior.
+- Extend a data-processing program to handle incomplete and inconsistent records.
 - Organize related data-processing logic across files.
 - Document and commit your work clearly in GitHub.
 
-No external Python libraries are required.
+No external Python libraries are required. The standard-library modules `copy` and `collections` are allowed.
 
 ---
 
@@ -64,6 +67,7 @@ labs/week04/
 │   ├── main.py
 │   ├── preprocessing.py
 │   └── analysis.py
+├── optional_label_report.py
 └── README.md
 ```
 
@@ -98,19 +102,24 @@ An AI experiment produced the following accuracy scores:
 accuracies = [0.82, 0.91, 0.87, 0.78, 0.93, 0.85]
 ```
 
-Write a program that:
+Write a program that performs these steps **in order**:
 
 1. Prints the first and last score.
 2. Prints the middle four values using slicing.
-3. Adds a new score of `0.89`.
-4. Replaces `0.78` with `0.80`.
-5. Counts how many values are greater than or equal to `0.85`.
-6. Finds the highest and lowest scores.
-7. Prints a sorted version from highest to lowest.
+3. Adds one new score, `0.89`, using `append()`.
+4. Adds a batch of two new scores, `[0.84, 0.90]`, using `extend()`.
+5. Replaces `0.78` with `0.80`. Use `index()` to find its position — do not hard-code the position.
+6. Prints the updated list.
+7. Counts how many values are greater than or equal to `0.85`.
+8. Finds the highest and lowest scores.
+9. Prints a sorted version from highest to lowest.
+10. Prints the list again to show it is still in evaluation order.
 
 ### Requirement
 
 Do not lose the original order when creating the sorted result.
+
+Store `0.85` in a named constant rather than repeating it.
 
 ### Hint
 
@@ -126,13 +135,34 @@ and:
 sorted(list)
 ```
 
+Also try `values.append([0.84, 0.90])` once and print the result. What went wrong, and why does `extend()` fix it?
+
+### Expected Output
+
+Your labels may differ, but the values should match:
+
+```text
+First: 0.82
+Last: 0.85
+Middle four: [0.91, 0.87, 0.78, 0.93]
+Updated: [0.82, 0.91, 0.87, 0.8, 0.93, 0.85, 0.89, 0.84, 0.9]
+Scores >= 0.85: 6
+Highest: 0.93
+Lowest: 0.8
+Sorted (high to low): [0.93, 0.91, 0.9, 0.89, 0.87, 0.85, 0.84, 0.82, 0.8]
+Original order kept: [0.82, 0.91, 0.87, 0.8, 0.93, 0.85, 0.89, 0.84, 0.9]
+```
+
+Python prints `0.80` as `0.8` — the value is the same.
+
 ### Concepts
 
 - Lists
 - Indexing
 - Slicing
 - Mutation
-- `append()`
+- `append()` vs `extend()`
+- `index()`
 - Membership/iteration
 - `sorted()`
 
@@ -181,6 +211,32 @@ Original: [70, 80, 90]
 Processed: [70, 80, 90, 100]
 ```
 
+---
+
+## Part C — Shallow Copy vs Deep Copy
+
+Now the data is a **list of dictionaries**:
+
+```python
+raw_predictions = [
+    {"id": 1, "label": "Spam"},
+    {"id": 2, "label": "HAM"}
+]
+```
+
+1. Make a copy with `.copy()`, change the first record's label to `"spam"` **in the copy**, then print `raw_predictions`.
+2. Recreate `raw_predictions`, make a copy with `copy.deepcopy()`, make the same change, and print both lists.
+
+### Required Output
+
+```text
+Raw after shallow copy edit: [{'id': 1, 'label': 'spam'}, {'id': 2, 'label': 'HAM'}]
+Raw after deep copy edit: [{'id': 1, 'label': 'Spam'}, {'id': 2, 'label': 'HAM'}]
+Deep copy: [{'id': 1, 'label': 'spam'}, {'id': 2, 'label': 'HAM'}]
+```
+
+In your README, explain why `.copy()` fixed Part B but did **not** protect the raw data in Part C.
+
 ### Reflection
 
 Explain why accidental mutation could be dangerous in:
@@ -193,14 +249,15 @@ Explain why accidental mutation could be dangerous in:
 
 - Mutability
 - Aliasing
-- Copying
+- Shallow copy
+- Deep copy
 - Data integrity
 
 ---
 
 # 6. Task 3 — Tuples for Fixed Data
 
-## Problem
+## Part A — Unpacking Fixed Data
 
 A computer-vision application stores:
 
@@ -218,9 +275,13 @@ Write a program that:
    - `model_name`
    - `accuracy`
 3. Prints a readable summary.
-4. Attempts to explain why these values are better represented as tuples than as changing lists.
+4. Explains, in a comment or your README, why these values are better represented as tuples than as changing lists.
 
-### Additional Requirement
+---
+
+## Part B — Returning a Tuple
+
+You wrote a similar function in Week 3. This time, focus on the fact that the returned value **is a tuple**.
 
 Create a function:
 
@@ -237,7 +298,43 @@ minimum, maximum, average
 
 as a tuple.
 
-Then unpack the result.
+If `scores` is empty, return `None` (the same convention as Week 3).
+
+Then:
+
+1. Call it with `[72, 88, 91, 67]` and unpack the result.
+2. Call it with `[]` and print the result.
+
+Why must you check for `None` **before** unpacking?
+
+---
+
+## Part C — Tuples as Dictionary Keys
+
+A model registry maps an input image size to the model that expects it:
+
+```python
+input_models = {
+    (224, 224): "resnet50",
+    (299, 299): "inception_v3",
+    (384, 384): "vit_base"
+}
+```
+
+1. Look up and print the model for a `299 x 299` image.
+2. Try creating the same dictionary with a **list** as a key (`[224, 224]`). Catch the error with `try`/`except` and print it.
+3. In your README, explain why a tuple can be a dictionary key but a list cannot.
+
+### Expected Output
+
+```text
+Image size: 224 x 224
+Model: baseline_cnn | Accuracy: 0.91
+Minimum: 67 | Maximum: 91 | Average: 79.5
+Empty: None
+Model for 299x299: inception_v3
+TypeError: unhashable type: 'list'
+```
 
 ### Concepts
 
@@ -245,6 +342,8 @@ Then unpack the result.
 - Immutability
 - Tuple unpacking
 - Multiple return values
+- Hashability
+- Tuples as dictionary keys
 
 ---
 
@@ -347,6 +446,17 @@ Your program should:
 4. Print labels present in the test set but not the training set.
 5. Print labels present in either dataset.
 
+Sets have no fixed order, so print each result with `sorted(...)` to get predictable output.
+
+### Expected Output
+
+```text
+Unique training labels: ['ham', 'promotion', 'spam']
+In both: ['ham', 'promotion', 'spam']
+Only in test: ['unknown']
+In either: ['ham', 'promotion', 'spam', 'unknown']
+```
+
 ### Required Operations
 
 Use:
@@ -368,6 +478,12 @@ for:
 In your README, explain:
 
 > Why is a set better than a list for checking unexpected class labels?
+
+Your answer should mention both **clarity** (set operations express the intent directly) and **speed** (hash-based membership checks).
+
+### Optional Experiment
+
+Use the `timeit` example from the lecture (Section 14.4) to compare `in` on a list and a set of 1,000,000 IDs. Record your timings in the README.
 
 ### Concepts
 
@@ -465,6 +581,17 @@ labels = [
 ```
 
 Create a set containing normalized lowercase labels.
+
+### Expected Output
+
+```text
+Valid: [78, 92, 67, 85]
+Normalized: [0.78, 0.92, 0.67, 0.85]
+Pass status: {'Ali': True, 'Sara': True, 'Ahmed': False, 'Fatima': True}
+Labels: ['ham', 'spam', 'unknown']
+```
+
+(The set in Part C is printed with `sorted(...)`.)
 
 ### Readability Requirement
 
@@ -616,9 +743,16 @@ Implement at least **three** of the scenarios in Python.
 
 ---
 
-# 12. Task 9 — Clean Code Refactoring Challenge
+# 12. Task 9 — Prediction Analysis: Refactor, Then Extend
 
-This is the main Week 4 engineering task.
+This is the main Week 4 engineering task. It has two parts:
+
+- **Part A** — refactor messy code **without changing what it does**.
+- **Part B** — extend the clean version to handle a realistic batch of data that includes incomplete and inconsistent records.
+
+---
+
+## Part A — Refactor Without Changing Behavior
 
 You are given this code:
 
@@ -626,8 +760,11 @@ You are given this code:
 x = [
     {"i": 1, "l": "spam", "c": 0.94},
     {"i": 2, "l": "ham", "c": 0.72},
-    {"i": 3, "l": "unknown", "c": 0.41},
-    {"i": 4, "l": "spam", "c": 0.89}
+    {"i": 3, "l": "promotion", "c": 0.41},
+    {"i": 4, "l": "spam", "c": 0.89},
+    {"i": 5, "l": "ham", "c": 0.97},
+    {"i": 6, "l": "promotion", "c": 0.83},
+    {"i": 7, "l": "ham", "c": 0.58}
 ]
 
 y = []
@@ -647,7 +784,14 @@ print(y)
 print(d)
 ```
 
-The code works, but it is difficult to read.
+Run it first and save its output. The code works, but it is difficult to read.
+
+Notice what it actually computes:
+
+- `y` — the predictions with confidence at or above `0.8`
+- `d` — label counts over **all** predictions, not only the high-confidence ones
+
+Your refactored version must produce the **same results** from the same data.
 
 Refactor it into:
 
@@ -658,11 +802,7 @@ task09_clean_code/
 └── analysis.py
 ```
 
----
-
-## `preprocessing.py`
-
-Create:
+### `preprocessing.py`
 
 ```python
 def filter_by_confidence(predictions, min_confidence):
@@ -672,23 +812,16 @@ def filter_by_confidence(predictions, min_confidence):
 Responsibility:
 
 ```text
-all predictions → selected predictions
+all predictions → predictions at or above the threshold
 ```
 
----
-
-## `analysis.py`
-
-Create:
+### `analysis.py`
 
 ```python
 def count_by_label(predictions):
     ...
-```
 
-and:
 
-```python
 def get_unique_labels(predictions):
     ...
 ```
@@ -696,23 +829,17 @@ def get_unique_labels(predictions):
 Responsibilities:
 
 ```text
-predictions → label counts
-predictions → unique labels
+predictions → label counts   (dictionary)
+predictions → unique labels  (set)
 ```
 
----
+### `main.py`
 
-## `main.py`
-
-Use descriptive data:
+Rewrite the data with descriptive keys:
 
 ```python
-predictions = [
-    {
-        "id": 1,
-        "label": "spam",
-        "confidence": 0.94
-    },
+initial_predictions = [
+    {"id": 1, "label": "spam", "confidence": 0.94},
     ...
 ]
 ```
@@ -723,91 +850,218 @@ Create a named constant:
 MIN_CONFIDENCE = 0.80
 ```
 
-Then:
-
-1. filter predictions
-2. count labels
-3. collect unique labels
-4. create a summary dictionary
-5. print a readable report
+Then call the functions and print the results.
 
 ### Expected Flow
 
+Filtering and counting are **separate branches** that both start from the full list:
+
 ```text
-Prediction Records
-       ↓
-filter_by_confidence(...)
-       ↓
-Selected Predictions
-       ↓
-count_by_label(...)
-       ↓
-get_unique_labels(...)
-       ↓
-Summary
+                 Prediction Records
+                          │
+        ┌─────────────────┼──────────────────┐
+        ↓                 ↓                  ↓
+filter_by_confidence  count_by_label   get_unique_labels
+        ↓                 ↓                  ↓
+ Selected predictions   Label counts     Unique labels
+        └─────────────────┼──────────────────┘
+                          ↓
+                       Report
 ```
 
-### Clean-Code Requirements
+### Expected Output (Part A)
 
-Your refactoring must improve:
+```text
+Selected IDs: [1, 4, 5, 6]
+Label counts: {'spam': 2, 'ham': 3, 'promotion': 2}
+Unique labels: ['ham', 'promotion', 'spam']
+```
 
-- naming
-- file organization
-- readability
-- use of constants
-- separation of responsibilities
+Check these against the output you saved from the original code.
 
-### README Question
+### How to Run
 
-Explain:
+Run from inside the task folder so the imports resolve:
 
-> What was wrong with the original code even though it produced correct output?
+```bash
+cd labs/week04/task09_clean_code
+python main.py
+```
 
 ---
 
-# 13. Optional Challenge — Mini Prediction Analysis
+## Part B — Extend to a Realistic Batch
 
-Use:
+A second batch of predictions arrives from another service. It is not as clean:
 
 ```python
-predictions = [
-    {"id": 101, "label": "spam", "confidence": 0.97},
-    {"id": 102, "label": "ham", "confidence": 0.83},
-    {"id": 103, "label": "spam", "confidence": 0.61},
-    {"id": 104, "label": "promotion", "confidence": 0.88},
-    {"id": 105, "label": "ham", "confidence": 0.92}
+new_batch = [
+    {"id": 8, "label": "Spam", "confidence": 0.91},
+    {"id": 9, "label": "ham"},
+    {"id": 10, "label": "unknown", "confidence": 0.86},
+    {"id": 11, "label": " HAM ", "confidence": 0.66}
 ]
 ```
 
-Build a program that produces:
+Problems in this batch:
+
+- record `9` has no `confidence`
+- records `8` and `11` use inconsistent capitalization and spacing
+- record `10` has a label the system does not recognize
+
+Combine both batches into one list, then produce a summary report.
+
+### Additional Constants in `main.py`
 
 ```python
-{
-    "total": ...,
+ALLOWED_LABELS = {"spam", "ham", "promotion"}
+REQUIRED_FIELDS = ("id", "label", "confidence")
+TOP_COUNT = 3
+```
+
+Think about why `ALLOWED_LABELS` is a set and `REQUIRED_FIELDS` is a tuple.
+
+### Additional Functions in `preprocessing.py`
+
+```python
+def split_complete_records(predictions, required_fields):
+    ...
+```
+
+Returns a tuple `(complete, incomplete)`. A record is complete only if it contains every required field.
+
+**Rule for missing data:** incomplete records are **skipped** from the analysis, and their IDs are **reported** — they are not silently dropped.
+
+```python
+def normalize_labels(predictions):
+    ...
+```
+
+Returns a **new** list in which every label is stripped of surrounding spaces and lowercased.
+
+It must **not** modify the records it receives. (Hint: copy each record with `record.copy()` before changing its label.)
+
+### Additional Functions in `analysis.py`
+
+```python
+def find_unexpected_labels(predictions, allowed_labels):
+    ...
+
+
+def average_confidence(predictions):
+    ...
+
+
+def top_predictions(predictions, count):
+    ...
+```
+
+- `find_unexpected_labels` uses **set difference**.
+- `average_confidence` returns `None` for an empty list.
+- `top_predictions` uses `sorted(..., key=..., reverse=True)` and a slice.
+
+### Processing Order
+
+```text
+initial_predictions + new_batch
+        ↓
+split_complete_records(...)  →  skipped IDs
+        ↓
+normalize_labels(...)
+        ↓
+analysis functions
+        ↓
+summary dictionary
+        ↓
+readable report
+```
+
+### Summary Dictionary
+
+Build a dictionary with at least these keys before printing anything:
+
+```python
+summary = {
+    "total_records": ...,
+    "valid_records": ...,
+    "skipped_ids": ...,
     "labels": ...,
-    "high_confidence": ...,
     "label_counts": ...,
-    "average_confidence": ...
+    "high_confidence_count": ...,
+    "unexpected_labels": ...,
+    "average_confidence": ...,
+    "top_ids": ...
 }
 ```
 
-Use at least:
+Keeping the calculation (building `summary`) separate from the display (printing it) is a clean-code requirement.
 
-- one list
-- one dictionary
-- one set
-- one comprehension
-- one function
+### Expected Output (Part B)
 
-### Additional Challenge
+Your layout may differ, but the values should match:
 
-Flag unexpected labels against:
-
-```python
-ALLOWED_LABELS = {"spam", "ham"}
+```text
+=== Prediction Report ===
+Total records:          11
+Valid records:          10
+Skipped (missing data): [9]
+Labels:                 ['ham', 'promotion', 'spam', 'unknown']
+Label counts:           {'spam': 3, 'ham': 4, 'promotion': 2, 'unknown': 1}
+High confidence (>= 0.8): 6
+Unexpected labels:      ['unknown']
+Average confidence:     0.777
+Top 3 by confidence:   [5, 1, 8]
 ```
 
-using set difference.
+Finally, print the label of record `8` in `new_batch`. It must still be `'Spam'` — proof that `normalize_labels` did not modify the raw data.
+
+### Clean-Code Requirements
+
+Your solution must show:
+
+- meaningful names (no `x`, `y`, `z`, `d`)
+- named constants instead of magic values
+- one clear responsibility per function
+- functions that return new data instead of mutating their inputs
+- `main.py` that coordinates the workflow but does not contain detailed processing logic
+
+### README Questions
+
+1. What was wrong with the original code even though it produced correct output?
+2. How did you confirm that your Part A refactor did not change the behavior?
+3. Why are incomplete records reported instead of silently skipped?
+4. Which data structure did you use for each part of the summary, and why?
+
+---
+
+# 13. Optional Challenge — Per-Label Confidence Report
+
+Using the cleaned records from Task 9 Part B, build a report that shows, **for each label**:
+
+- how many predictions it has
+- its average confidence
+- its highest confidence
+
+Example layout:
+
+```text
+label       count  avg_conf  max_conf
+ham             4     0.732      0.97
+promotion       2     0.620      0.83
+spam            3     0.913      0.94
+unknown         1     0.860      0.86
+```
+
+Requirements:
+
+- Group confidences by label into a dictionary of lists.
+- Print labels in alphabetical order.
+- Implement it **twice**: once with a plain dictionary, and once with `collections.defaultdict(list)`.
+- Use `collections.Counter` to find the single most common label.
+
+In your README, compare the two versions: which is clearer, and what does `defaultdict` save you from writing?
+
+This is the same "group by, then aggregate" idea you will use in Week 6 with Pandas.
 
 ---
 
@@ -845,6 +1099,23 @@ record = {
 Ask:
 
 > What should happen if `"confidence"` is missing?
+
+In Task 9 Part B the answer is decided for you: **skip the record and report its ID**. For other tasks, decide on a rule, apply it consistently, and write it down in your README. Options include:
+
+```text
+skip and report      → split_complete_records(...)
+use a safe default   → record.get("confidence", 0.0)
+stop with an error   → raise ValueError(...)   (Week 3 exception handling)
+```
+
+Specific cases worth testing in Task 9:
+
+```text
+filter_by_confidence([], MIN_CONFIDENCE)          → []
+average_confidence([])                            → None
+record with confidence exactly 0.80               → included (>=)
+normalize_labels(...) then check the raw records  → unchanged
+```
 
 You do not have to solve every possible production case yet, but you should recognize where edge cases exist.
 
@@ -892,6 +1163,32 @@ Prefer a normal loop if the comprehension becomes difficult to explain.
 
 Do not use a list automatically for every problem.
 
+## Do not mutate your inputs
+
+A function should return new data rather than silently changing the list or dictionaries passed to it.
+
+## Avoid mutable default arguments
+
+Prefer:
+
+```python
+def add_label(label, labels=None):
+    if labels is None:
+        labels = []
+    ...
+```
+
+over:
+
+```python
+def add_label(label, labels=[]):
+    ...
+```
+
+## Keep output predictable
+
+When printing a set, use `sorted(...)` so the output is the same on every run.
+
 ## Do not over-engineer
 
 A simple dictionary may be better than creating a class for a small record.
@@ -919,6 +1216,9 @@ git commit -m "Lab04: add collection comprehensions"
 
 git add labs/week04/task09_clean_code/
 git commit -m "Lab04: refactor prediction analysis for clean code"
+
+git add labs/week04/task09_clean_code/
+git commit -m "Lab04: handle incomplete and inconsistent prediction records"
 
 git push
 ```
@@ -952,32 +1252,43 @@ Suggested structure:
 - Comprehensions
 - `enumerate()`
 - `zip()`
+- Sorting and counting records
 - Data structure selection
 - Clean code
 - File organization
 
 ## Tasks Completed
 1. Lists
-2. Aliasing vs Copying
-3. Tuples
+2. Aliasing vs Copying (including shallow vs deep copy)
+3. Tuples (including tuples as dictionary keys)
 4. Dictionaries
 5. Sets
 6. Comprehensions
 7. `enumerate()` and `zip()`
 8. Data Structure Selection
-9. Clean Code Refactoring
+9. Prediction Analysis — Part A (refactor) and Part B (extend)
 
 ## Data Structure Decisions
 Explain why you chose particular structures in Task 8.
 
 ## Aliasing vs Copying
-Explain what happened in Task 2.
+Explain what happened in Task 2, including why `.copy()` was not enough in Part C.
+
+## Hashability
+Explain why a tuple can be a dictionary key but a list cannot (Task 3 Part C).
+
+## Sets vs Lists for Validation
+Answer the Task 5 engineering question. Include your timings if you did the optional experiment.
 
 ## Clean-Code Refactoring
 Explain:
 - what was difficult to read in the original code
 - what you changed
+- how you confirmed the behavior did not change
 - why the refactored version is easier to maintain
+
+## Handling Incomplete Records
+Explain your Task 9 Part B rules for missing fields and inconsistent labels.
 
 ## Edge Cases Tested
 Describe at least three useful test cases.
@@ -1007,6 +1318,7 @@ Useful prompts:
 
 - "Do not solve the task. Which data structure best fits this requirement, and why?"
 - "Explain why this list changed when I modified another variable."
+- "Why did changing a record in my copied list also change the original records?"
 - "Help me compare a tuple and list for this scenario."
 - "Explain what this nested dictionary represents."
 - "Give me three test cases for this dictionary-processing function."
@@ -1091,6 +1403,39 @@ Focus on:
 
 ---
 
+## Python — Sorting Techniques
+
+https://docs.python.org/3/howto/sorting.html
+
+Focus on:
+
+- `sorted()` vs `list.sort()`
+- key functions
+- `reverse=True`
+
+---
+
+## Python — `copy` Module
+
+https://docs.python.org/3/library/copy.html
+
+Focus on:
+
+- shallow vs deep copy
+
+---
+
+## Python — `collections` Module
+
+https://docs.python.org/3/library/collections.html
+
+Focus on:
+
+- `Counter`
+- `defaultdict`
+
+---
+
 ## PEP 8 — Style Guide for Python Code
 
 https://peps.python.org/pep-0008/
@@ -1111,7 +1456,7 @@ For now, pay attention to:
 ```text
 Lists
   ↓
-List copying
+List copying (shallow vs deep)
   ↓
 Tuples
   ↓
@@ -1119,11 +1464,13 @@ Dictionaries
   ↓
 Nested structures
   ↓
-Sets
+Sets and hashability
   ↓
 Comprehensions
   ↓
 enumerate() / zip()
+  ↓
+Sorting and counting records
   ↓
 Refactor for readability
 ```
@@ -1141,16 +1488,19 @@ The goal is to recognize:
 Before submitting, verify:
 
 - [ ] All required work is inside `labs/week04/`.
-- [ ] Task 1 demonstrates list operations and non-destructive sorting.
-- [ ] Task 2 demonstrates aliasing and copying.
-- [ ] Task 3 demonstrates tuples and unpacking.
+- [ ] Task 1 demonstrates `append()`, `extend()`, `index()`, and non-destructive sorting.
+- [ ] Task 2 demonstrates aliasing, shallow copying, and deep copying.
+- [ ] Task 3 demonstrates tuples, unpacking, the empty-list case, and tuples as dictionary keys.
 - [ ] Task 4 uses dictionaries and nested dictionaries.
-- [ ] Task 5 uses set operations.
+- [ ] Task 5 uses set operations and prints sets in sorted order.
 - [ ] Task 6 contains list, dictionary, and set comprehensions.
 - [ ] Task 7 uses both `enumerate()` and `zip()`.
 - [ ] Task 8 explains data-structure choices.
-- [ ] Task 9 is organized into multiple files.
+- [ ] Task 9 Part A produces the same results as the original code.
+- [ ] Task 9 Part B skips and reports incomplete records, normalizes labels without mutating the raw data, and matches the expected report.
+- [ ] Task 9 is organized into multiple files and runs with `python main.py` from its folder.
 - [ ] Magic values were replaced with meaningful constants where appropriate.
+- [ ] No function uses a mutable default argument.
 - [ ] `labs/week04/README.md` exists.
 - [ ] AI Usage Log is included if AI assistance was used.
 - [ ] Multiple meaningful Git commits are visible.
@@ -1165,13 +1515,16 @@ After completing this lab, you should be able to:
 
 - Use lists, tuples, dictionaries, and sets correctly.
 - Explain mutable vs immutable structures.
-- Avoid accidental list aliasing.
+- Avoid accidental aliasing, and choose between shallow and deep copies.
+- Explain hashability and use tuples as dictionary keys.
 - Work with nested data structures.
-- Use set operations for validation.
+- Use set operations for validation, and explain why set lookups are fast.
 - Write readable comprehensions.
 - Use `enumerate()` and `zip()` effectively.
+- Sort and count lists of dictionaries.
 - Select data structures based on meaning and behavior.
-- Refactor unclear data-processing code.
+- Refactor unclear data-processing code without changing its behavior.
+- Handle incomplete and inconsistent records deliberately.
 - Organize related logic into appropriate files.
 - Write cleaner and more maintainable Python programs.
 

@@ -22,6 +22,10 @@ This course focuses not only on writing Python programs and training models, but
 | [Lab 01 - GitHub Setup & First Push](labs/week01/README.md) | Git configuration, coursework repository, first commits |
 | [Week 2 Lecture Handout](lectures/week02/README.md) | Python fundamentals for AI problem solving |
 | [Lab 02 - Python Fundamentals for Problem Solving](labs/week02/README.md) | Variables, operators, conditionals, loops, functions, boundary testing |
+| [Week 3 Lecture Handout](lectures/week03/README.md) | Functions, modules, exceptions, debugging, and object-oriented programming |
+| [Lab 03 - Functions, Modules, Exceptions, Debugging & OOP](labs/week03/README.md) | Reusable functions, custom modules, exception handling, classes, refactoring |
+| [Week 4 Lecture Handout](lectures/week04/README.md) | Python data structures and clean code |
+| [Lab 04 - Python Data Structures & Clean Code](labs/week04/README.md) | Lists, tuples, dictionaries, sets, comprehensions, data-oriented refactoring |
 
 ---
 
